@@ -1,0 +1,49 @@
+# For additional information about this config file see:
+# https://github.com/VEuPathDB/util-user-dataset-handler-server
+
+# Name of your handler.  Should be unique against the full list
+# of listed handlers.
+service-name: My format handler.
+
+# Configuration of the CLI call that will be used to execute your
+# script/tool.
+command:
+
+  # Path to the executable in the Docker image.  This should
+  # match your `COPY` line in your handler's Dockerfile.
+  executable: /opt/handler/bin/exportBiomToEuPathDB
+
+  # CLI Args that will be passed to your script's CLI
+  # arguments.
+  #
+  # These arguments will be passed in the order defined here.
+  #
+  # Valies in `<<>>` are variables that will be injected into
+  # the CLI call based on the incoming request.
+  #
+  # The example args below are from the biom-handler.
+  args:
+    # 1. dataset name
+    - <<ds-name>>
+    # 2. dataset summary
+    - <<ds-summary>>
+    # 3. dataset description
+    - <<ds-description>>
+    # 4. dataset uploader id
+    - <<ds-user-id>>
+    # 5. output file (ignored)
+    - html.html
+    # 6. Dataset origin
+    - <<ds-origin>>
+    # 7. dataset file path
+    - <<input-files[0]>>
+
+# A list of file types allowed to be handled by this handler.
+#
+# By default zip and tar archives are allowed, and this list
+# controls additional file types that are permitted.
+#
+# If this list is empty or omitted, only zip or tar archives
+# will be permitted.
+file-types:
+  - .txt
