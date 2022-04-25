@@ -10,6 +10,6 @@ node('centos8') {
 
   builder.gitClone()
   builder.buildContainers([
-    [ name: 'user-dataset-handler-my-handler' ]
+    [ name: 'user-dataset-handler-gene-list' ]
   ])
 }
