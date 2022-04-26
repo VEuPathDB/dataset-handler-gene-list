@@ -56,7 +56,7 @@ class GeneListExport(DatasetHandler):
         regarded as a validation exception.
         :return: list containing the single relevant EuPath project (only one for now)
         """
-        return [self._projects]
+        return self._projects
 
     def identify_dataset_files(self):
         """
