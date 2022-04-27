@@ -3,11 +3,10 @@
 import sys
 sys.path.insert(0, "/opt/handler/lib/python")
 # sys.path.insert(0, "./lib/python")
-from eupath import GeneListExporter
+from eupath import GeneListHandler
 from handler_base.dataset_handler import ValidationException
 import optparse
 import sys
-import re
 
 
 def main():
@@ -31,7 +30,7 @@ def main():
     sys.tracebacklimit = 0
 
     # Create and populate the meta.json file that must be included in the tarball
-    exporter = GeneListExporter.GeneListExport(args)
+    exporter = GeneListHandler.GeneListHandler(args)
     try:
         exporter.export()
     except ValidationException as ve:

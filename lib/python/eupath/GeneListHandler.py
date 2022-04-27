@@ -1,6 +1,9 @@
-from handler_base.dataset_handler import DatasetHandler, ValidationException
+from subprocess import Popen
 
-class GeneListExport(DatasetHandler):
+from handler_base.dataset_handler import DatasetHandler, ValidationException
+import sys, re
+
+class GeneListHandler(DatasetHandler):
     """
     This class is a specialized version of the Galaxy to EuPathDB dataset export tool.  This tool's
     specialty is furnishing user's gene list data to EuPathDB.  As with all specialty export tools, this
@@ -12,10 +15,6 @@ class GeneListExport(DatasetHandler):
     GENE_LIST_VERSION = "1.0"
     GENE_LIST_FILE = "genelist.txt"
 
-    # The validation script to be applied to the dataset files.  A failed validation should
-    # return in a system exit status of other than 0.
-    GENE_LIST_VALIDATION_SCRIPT = "validateGeneList"
-
     def __init__(self, args):
         """
         Initializes the gene list export class with the parameters needed to accomplish the particular
@@ -23,12 +22,11 @@ class GeneListExport(DatasetHandler):
         :param args: parameters provided from tool form
         """
         DatasetHandler.__init__(self,
-                                GeneListExport.GENE_LIST_TYPE,
-                                GeneListExport.GENE_LIST_VERSION,
-                                GeneListExport.GENE_LIST_VALIDATION_SCRIPT,
+                                GeneListHandler.GENE_LIST_TYPE,
+                                GeneListHandler.GENE_LIST_VERSION,
+                                None,  # Validation is done in-process in validate_datasets
                                 args)
-
-        # For the gene list export, three parameters beyond generic 7 are required.
+        # For the gene list export, project_ids parameter expected in addition to base 7.
         if len(args) < 8:
             raise ValidationException("The tool was passed an insufficient numbers of arguments.")
 
@@ -39,6 +37,21 @@ class GeneListExport(DatasetHandler):
         if len(args[6].strip()) == 0:
             raise ValidationException("ProjectIds must be specified.")
         self._projects = args[6].split(",")
+
+    def validate_datasets(self):
+        error = None
+        dataset_files = self.identify_dataset_files()
+
+        if len(dataset_files) != 1:
+            error = "A gene list dataset should have only one file."
+        else:
+            with open(dataset_files[0]['path'], 'r') as source_file:
+                for line in source_file:
+                    if re.search(r"\s", line.strip()):
+                        error = "No lines in a gene list file should contain embedded whitespace."
+        if error is not None:
+            sys.stderr.write("Error: " + error)
+            sys.exit(1)
 
     def identify_dependencies(self):
         """
