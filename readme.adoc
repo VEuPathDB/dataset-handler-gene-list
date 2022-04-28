@@ -3,39 +3,18 @@
 
 == Important Links
 
-* Live example: https://github.com/VEuPathDB/dataset-handler-biom
+* Created from template: https://github.com/VEuPathDB/example-dataset-import-handler
 * Script Expectations: https://github.com/VEuPathDB/util-user-dataset-handler-server#script-expectations
 * Config.yml Variables: https://veupathdb.github.io/util-user-dataset-handler-server
 
+== Gene List Format
+The gene list format has a single string on each line corresponding to a gene identifier. There should not be additional columns or spaces present on any line of the file.
+
 == Usage
 
-=== Your script.
+=== GeneList script
 
-The script that should be executed to handle incoming datasets may be
-in any language, but must be executable by a CLI call.
-
-By default Python2 is included, but other desired languages will have to be 
-installed via https://wiki.alpinelinux.org/wiki/Package_management[Alpine Linux's `apk` command].
-
-A full listing of available packages for the version of Alpine used in our
-images can be found https://pkgs.alpinelinux.org/packages?name=&branch=v3.11[here].
-
-If the language needed is not included in the package listing linked to above,
-the base image Alpine version can be updated by the UI-Infra team.
-
-=== `config.yml`
-
-The `config.yml` file is used to tell the HTTP server that will be running in
-the container how to execute your script via a command line call.
-
-A full reference for the syntax of this file can be found
-https://veupathdb.github.io/util-user-dataset-handler-server/[here].
-
-The config file allows injecting variables into the CLI call allowing 
-customization of the call based on the input HTTP request to the server.
-
-A full, working example can be found https://github.com/VEuPathDB/dataset-handler-biom/blob/master/config.yml[here].
-
+The script is implemented in Python ported from https://github.com/VEuPathDB/EuPathGalaxy. More details on the script's output expectations can be found https://github.com/VEuPathDB/EuPathGalaxy[here].
 
 === Jenkinsfile
 
@@ -58,7 +37,7 @@ node('centos8') {
 
   builder.gitClone()
   builder.buildContainers([
-    [ name: 'user-dataset-handler-biom' ] <1>
+    [ name: 'user-dataset-handler-gene-list' ] <1>
   ])
 }
 ----
@@ -66,39 +45,5 @@ node('centos8') {
     similar to the example in name following the template
     `user-dataset-handler-{my-handler-name}`
 
-
-=== Dockerfile
-
-Once your handler script/tool is ready to be deployed or tested in Docker, the
-included `Dockerfile` must be edited to include your scripts and necessary
-libraries.
-
-There is a section at the bottom of the included `Dockerfile` for adding file
-copies or other setup steps.
-
-An example of this setup can be found in the `dataset-handler-biom` project:
-
-[source, Dockerfile, linenums]
-----
-# # # # # # # # # # # # # # # #
-#                             #
-#  Handler Specific Config    #
-#                             #
-# # # # # # # # # # # # # # # #
-
-COPY lib /opt/handler/lib
-COPY bin /opt/handler/bin
-RUN pip install git+https://github.com/VEuPathDB/dataset-handler-python-base \
-    && chmod +x /opt/handler/bin/exportBiomToEuPathDB
-----
-
-In the above example:
-
-. The project local `lib` directory is copied into the
-Docker image under the root path `/opt/handler/lib`.
-. The project local `bin` directory is copied into the
-Docker image under the root path `/opt/handler/bin`
-. The VEuPathDB python project `dataset-handler-python-base`
-is installed.
-. The executable python script included in the project is
-marked as executable.
+=== Local Development
+The easiest way to test locally is to run the import service end-to-end using https://github.com/VEuPathDB/service-user-dataset-import#running-locally[these instructions]. If this project is checked out in the same directory as the service, the service can be configured to use any locally staged changes when building the gene-list docker container.

@@ -17,9 +17,15 @@ RUN tar -xzf tmp.tgz \
     && echo using server version ${server_url} \
     && wget ${server_url} -O tmp.tgz \
     && tar -xzf tmp.tgz \
-    && rm tmp.tgz
+    && rm tmp.tgz \
+    && chmod +x ./server
 
+COPY lib /opt/handler/lib
+COPY bin /opt/handler/bin
 COPY config.yml config.yml
+
+RUN pip install git+https://github.com/VEuPathDB/dataset-handler-python-base \
+    && chmod +x /opt/handler/bin/exportGeneListToEuPathDB
 
 EXPOSE 80
 CMD ./server
