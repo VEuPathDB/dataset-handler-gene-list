@@ -49,3 +49,6 @@ command:
 # will be permitted.
 file-types:
   - .txt
+  - .csv
+  - .tsv
+  - ""
